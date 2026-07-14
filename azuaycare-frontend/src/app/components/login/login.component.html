@@ -1,0 +1,170 @@
+<div class="min-h-screen w-full flex items-center justify-center bg-slate-50 px-4 font-sans">
+  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-100 transition-all">
+    <div *ngIf="vistaActual() === 'principal'" class="space-y-6">
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-slate-800">Iniciar Sesión</h2>
+        <p class="text-sm text-slate-500 mt-1">Ingresa al sistema institucional con Google o tus credenciales.</p>
+      </div>
+
+      <button
+        type="button"
+        (click)="loginConGoogle()"
+        [disabled]="isLoading()"
+        class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 text-slate-700 font-medium py-2.5 px-4 border border-slate-200 rounded-lg shadow-sm transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.103C18.41 2.121 15.59 1 12.24 1.1 6.133 1.1 1.16 6.027 1.16 12.1s4.973 11 11.08 11c6.372 0 10.596-4.436 10.596-10.662 0-.717-.077-1.261-.174-1.653H12.24z" />
+        </svg>
+        <span>{{ isLoading() ? 'Conectando...' : 'Continuar con Google' }}</span>
+      </button>
+
+      <div *ngIf="error()" class="text-center text-sm text-red-500 mt-1">{{ error() }}</div>
+
+      <div class="relative flex py-2 items-center text-xs text-slate-400 uppercase">
+        <div class="flex-grow border-t border-slate-200"></div>
+        <span class="flex-shrink mx-4">O usa tu cuenta institucional</span>
+        <div class="flex-grow border-t border-slate-200"></div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Correo Institucional</label>
+          <input
+            type="email"
+            [(ngModel)]="correoLogin"
+            placeholder="usuario@tecazuay.edu.ec"
+            class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Contraseña</label>
+          <input
+            type="password"
+            [(ngModel)]="contrasenaLogin"
+            placeholder="••••••••"
+            class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          />
+        </div>
+
+        <button
+          type="button"
+          (click)="iniciarSesionTradicional()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition duration-200 text-sm"
+        >
+          Iniciar Sesión
+        </button>
+      </div>
+
+      <div class="text-center pt-2">
+        <button
+          type="button"
+          (click)="vistaActual.set('paso1')"
+          class="text-xs text-blue-600 hover:underline font-medium bg-transparent border-none cursor-pointer"
+        >
+          ¿Eres estudiante nuevo? Obtén tus credenciales aquí
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="vistaActual() === 'paso1'" class="space-y-5">
+      <div class="text-center">
+        <h2 class="text-xl font-bold text-slate-800">Verifica tu Identidad</h2>
+        <p class="text-xs text-slate-500 mt-1">Introduce el correo personal (Gmail) que registraste en la matrícula institucional.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Correo Personal Gmail</label>
+        <input
+          type="email"
+          [(ngModel)]="correoPersonal"
+          placeholder="ejemplo@gmail.com"
+          class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+        />
+      </div>
+
+      <div class="space-y-2">
+        <button
+          type="button"
+          (click)="enviarCodigoVerificacion()"
+          [disabled]="isLoading()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ isLoading() ? 'Enviando...' : 'Enviar Código de Verificación' }}
+        </button>
+        <button
+          type="button"
+          (click)="volverAlLogin()"
+          class="w-full text-xs text-slate-500 hover:text-slate-800 font-medium py-2 bg-transparent border-none cursor-pointer"
+        >
+          Volver al Inicio
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="vistaActual() === 'paso2'" class="space-y-5">
+      <div class="text-center">
+        <h2 class="text-xl font-bold text-slate-800">Código de Seguridad</h2>
+        <p class="text-xs text-slate-500 mt-1">
+          Hemos enviado un código a <span class="font-semibold text-slate-700">{{ correoPersonal() }}</span>.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1.5 text-center">Código de 6 dígitos</label>
+        <input
+          type="text"
+          [(ngModel)]="codigoIngresado"
+          placeholder="123456"
+          maxlength="6"
+          class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-center font-mono font-bold tracking-widest text-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        />
+      </div>
+
+      <div class="space-y-2">
+        <button
+          type="button"
+          (click)="verificarCodigo()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition duration-200 text-sm"
+        >
+          Verificar Código
+        </button>
+        <button
+          type="button"
+          (click)="vistaActual.set('paso1')"
+          class="w-full text-xs text-blue-600 hover:underline font-medium py-2 bg-transparent border-none cursor-pointer"
+        >
+          No me llegó el código, regresar
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="vistaActual() === 'paso3'" class="space-y-5">
+      <div class="text-center">
+        <div class="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">✓</div>
+        <h2 class="text-xl font-bold text-slate-800">¡Identidad Verificada!</h2>
+        <p class="text-xs text-slate-500 mt-1">Se han generado tus credenciales institucionales de acceso:</p>
+      </div>
+
+      <div class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-4 space-y-3">
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 tracking-wider uppercase">Correo Institucional</span>
+          <span class="text-sm font-mono font-bold text-slate-800 break-all">{{ correoInstitucionalGenerado() }}</span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 tracking-wider uppercase">Contraseña Segura (8 dígitos)</span>
+          <span class="inline-block text-sm font-mono font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded select-all">{{ contrasenaGenerada() }}</span>
+        </div>
+        <p class="text-[10px] text-slate-400 leading-normal pt-1">⚠️ Esta clave contiene letras mayúsculas, minúsculas, números y caracteres especiales obligatorios. Cópiala con cuidado antes de continuar.</p>
+      </div>
+
+      <button
+        type="button"
+        (click)="volverAlLogin()"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition duration-200 text-sm"
+      >
+        Ir a Iniciar Sesión Ahora
+      </button>
+    </div>
+  </div>
+</div>
